@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -50,6 +49,14 @@
       font-size: 18px;
       color: #333;
     }
+
+    input, button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 80%;
+      max-width: 300px;
+    }
   </style>
 </head>
 <body>
@@ -63,27 +70,96 @@
   </header>
 
   <main>
-    <h2>Bem-vindo ao meuponto</h2>
-    <p>Seu sistema de ponto online está no ar!</p>
+    <h2>Login</h2>
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="Email" required />
+      <input type="password" id="login-password" placeholder="Senha" required />
+      <button type="submit">Entrar</button>
+    </form>
+
+    <p>Não tem conta? <a href="#" onclick="mostrarCadastro()">Cadastre-se</a></p>
+
+    <div id="cadastro" style="display:none;">
+      <h2>Cadastro</h2>
+      <form id="cadastro-form">
+        <input type="email" id="cadastro-email" placeholder="Email" required />
+        <input type="password" id="cadastro-senha" placeholder="Senha" required />
+        <button type="submit">Cadastrar</button>
+      </form>
+    </div>
   </main>
-<!-- Firebase App -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<!-- Firebase Auth (se for usar login) -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 
-<script>
-  // Sua configuração do Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyCpiNXMk9fNcr5yP4a4J1ysKx7cfublWns",
-    authDomain: "meuponto-9cdc2.firebaseapp.com",
-    projectId: "meuponto-9cdc2",
-    storageBucket: "meuponto-9cdc2.firebasestorage.app",
-    messagingSenderId: "263074488820",
-    appId: "1:263074488820:web:54a7daedd1c5a8f8ef19a1"
-  };
+  <!-- Firebase App -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <!-- Firebase Auth -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 
-  // Inicializa o Firebase
-  firebase.initializeApp(firebaseConfig);
-</script>
+  <script>
+    // Sua configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpiNXMk9fNcr5yP4a4J1ysKx7cfublWns",
+      authDomain: "meuponto-9cdc2.firebaseapp.com",
+      projectId: "meuponto-9cdc2",
+      storageBucket: "meuponto-9cdc2.firebasestorage.app",
+      messagingSenderId: "263074488820",
+      appId: "1:263074488820:web:54a7daedd1c5a8f8ef19a1"
+    };
+
+    // Inicializa o Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Email do administrador
+    const adminEmail = "meuponto.net.br@gmail.com";
+
+    // Mostrar ou ocultar cadastro
+    function mostrarCadastro() {
+      document.getElementById("cadastro").style.display = "block";
+    }
+
+    // Login
+    document.getElementById("login-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const senha = document.getElementById("login-password").value;
+
+      auth.signInWithEmailAndPassword(email, senha)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          if (user.email === adminEmail) {
+            alert("Bem-vindo, Administrador!");
+            // Redirecionar ou mostrar painel de ADM
+          } else {
+            alert("Login de funcionário realizado com sucesso.");
+            registrarPonto(user.email);
+          }
+        })
+        .catch((error) => {
+          alert("Erro no login: " + error.message);
+        });
+    });
+
+    // Cadastro
+    document.getElementById("cadastro-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("cadastro-email").value;
+      const senha = document.getElementById("cadastro-senha").value;
+
+      auth.createUserWithEmailAndPassword(email, senha)
+        .then(() => {
+          alert("Cadastro realizado com sucesso!");
+          document.getElementById("cadastro").style.display = "none";
+        })
+        .catch((error) => {
+          alert("Erro no cadastro: " + error.message);
+        });
+    });
+
+    // Simula o registro de ponto
+    function registrarPonto(email) {
+      const hora = new Date().toLocaleString();
+      alert(Ponto registrado para ${email} em ${hora});
+    }
+  </script>
 </body>
 </html>
