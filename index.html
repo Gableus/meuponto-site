@@ -66,5 +66,24 @@
     <h2>Bem-vindo ao meuponto</h2>
     <p>Seu sistema de ponto online está no ar!</p>
   </main>
+<!-- Firebase App -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<!-- Firebase Auth (se for usar login) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+
+<script>
+  // Sua configuração do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCpiNXMk9fNcr5yP4a4J1ysKx7cfublWns",
+    authDomain: "meuponto-9cdc2.firebaseapp.com",
+    projectId: "meuponto-9cdc2",
+    storageBucket: "meuponto-9cdc2.firebasestorage.app",
+    messagingSenderId: "263074488820",
+    appId: "1:263074488820:web:54a7daedd1c5a8f8ef19a1"
+  };
+
+  // Inicializa o Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
 </body>
 </html>
