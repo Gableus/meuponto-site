@@ -119,5 +119,23 @@
     <div id="registros"></div>
   </div>
 
+<script>
+  function registrarPonto(tipo) {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    const db = firebase.firestore();
+    db.collection("pontos").add({
+      uid: user.uid,
+      email: user.email,
+      tipo: tipo,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      alert("Ponto de " + tipo + " registrado com sucesso!");
+    }).catch((error) => {
+      console.error("Erro ao registrar ponto:", error);
+    });
+  }
+</script>
 </body>
 </html>
