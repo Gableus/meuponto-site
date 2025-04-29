@@ -7,21 +7,26 @@
   <style>
     <style>
   <style>
+  <style>
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     margin: 0;
+    padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f0f4f8;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    flex-direction: column;
   }
 
   h1 {
-    text-align: center;
-    margin-top: 40px;
     color: #0d47a1;
-    font-size: 32px;
+    margin-bottom: 20px;
   }
 
   #login-form {
@@ -29,7 +34,6 @@
     max-width: 360px;
     background: white;
     padding: 30px;
-    margin-top: 30px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0,0,0,0.08);
   }
@@ -112,6 +116,10 @@
     #content, #login-form {
       margin: 20px;
       width: auto;
+    }
+
+    body {
+      padding: 20px;
     }
   }
 </style>
