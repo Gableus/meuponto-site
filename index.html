@@ -9,82 +9,138 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background: #f5f5f5;
+      background-color: #f2f2f2;
     }
 
     header {
-      background: #0d47a1;
+      background-color: #0d47a1;
       color: white;
-      padding: 10px;
+      padding: 20px;
       text-align: center;
     }
 
-    .container {
+    main {
+      padding: 20px;
+    }
+
+    #login-form {
+      max-width: 300px;
+      margin: 40px auto;
+      text-align: center;
+    }
+
+    #login-form input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 90%;
+    }
+
+    #login-form button {
+      padding: 10px 20px;
+      background-color: #0288d1;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #content {
+      display: none;
       max-width: 600px;
       margin: 20px auto;
-      padding: 20px;
       background: white;
+      padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    form input {
-      display: block;
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 10px;
-      font-size: 16px;
+    #botoes-ponto {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
     }
 
-    button {
+    #botoes-ponto button {
       padding: 10px 20px;
-      margin: 5px 0;
-      font-size: 16px;
       border: none;
-      border-radius: 4px;
+      color: white;
       cursor: pointer;
+      border-radius: 5px;
     }
 
-    .btn-blue { background: #0d47a1; color: white; }
-    .btn-red { background: #d32f2f; color: white; }
+    #entrada-btn {
+      background-color: #1976d2;
+    }
 
-    #filtro { margin: 20px 0; }
+    #saida-btn {
+      background-color: #1565c0;
+    }
+
+    #sair {
+      background-color: #d32f2f;
+    }
+
+    #filtro {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #filtro input {
+      padding: 5px;
+      margin: 0 5px;
+    }
+
+    #filtro button {
+      padding: 6px 12px;
+      background-color: #0288d1;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #registros {
+      margin-top: 20px;
+    }
 
     #registros p {
-      border-bottom: 1px solid #ccc;
-      padding: 5px 0;
+      background-color: #f0f0f0;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 5px;
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>Meu Ponto</h1>
+  </header>
 
-  <header><h1>Meu Ponto</h1></header>
-
-  <div class="container">
+  <main>
     <form id="login-form">
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Senha" required />
-      <button type="submit" class="btn-blue">Entrar / Cadastrar</button>
+      <button type="submit">Entrar / Cadastrar</button>
     </form>
 
-    <div id="content" style="display:none;">
+    <div id="content">
       <div id="botoes-ponto">
-        <button id="entrada-btn" class="btn-blue">Registrar Entrada</button>
-        <button id="saida-btn" class="btn-blue">Registrar Saída</button>
-        <button id="sair" class="btn-red">Sair</button>
+        <button id="entrada-btn">Registrar Entrada</button>
+        <button id="saida-btn">Registrar Saída</button>
+        <button id="sair">Sair</button>
       </div>
 
-      <div id="filtro" style="display:none;">
-        <label>Filtrar por data:</label><br/>
-        <input type="date" id="inicio" />
-        <input type="date" id="fim" />
-        <button id="btn-filtrar" class="btn-blue">Filtrar</button>
+      <div id="filtro">
+        <label>De: <input type="date" id="data-inicio"></label>
+        <label>Até: <input type="date" id="data-fim"></label>
+        <button id="filtrar-btn">Filtrar</button>
       </div>
 
-      <div id="registros"><h3>Registros</h3></div>
+      <div id="registros"></div>
     </div>
-  </div>
+  </main>
 
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -102,6 +158,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
     const admEmail = "meuponto.net.br@gmail.com";
 
     const loginForm = document.getElementById("login-form");
@@ -111,8 +168,6 @@
     const sairBtn = document.getElementById("sair");
     const entradaBtn = document.getElementById("entrada-btn");
     const saidaBtn = document.getElementById("saida-btn");
-    const filtroDiv = document.getElementById("filtro");
-    const btnFiltrar = document.getElementById("btn-filtrar");
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -125,13 +180,10 @@
       }
     });
 
-    sairBtn.addEventListener("click", () => {
-      signOut(auth);
-    });
-
+    sairBtn.addEventListener("click", () => signOut(auth));
     entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
     saidaBtn.addEventListener("click", () => registrarPonto("saida"));
-    btnFiltrar.addEventListener("click", () => mostrarRegistros(true));
+    document.getElementById("filtrar-btn").onclick = () => mostrarRegistros();
 
     async function registrarPonto(tipo) {
       const user = auth.currentUser;
@@ -146,30 +198,34 @@
       mostrarRegistros();
     }
 
-    async function mostrarRegistros(filtrar = false) {
+    async function mostrarRegistros() {
       registrosDiv.innerHTML = "<h3>Registros</h3>";
       const user = auth.currentUser;
-      let q;
+      if (!user) return;
 
-      const colRef = collection(db, "pontos");
+      const dataInicio = document.getElementById("data-inicio").value;
+      const dataFim = document.getElementById("data-fim").value;
 
-      if (user.email === admEmail) {
-        filtroDiv.style.display = "block";
-        const inicio = document.getElementById("inicio").value;
-        const fim = document.getElementById("fim").value;
+      let q = collection(db, "pontos");
+      let filtros = [];
 
-        if (filtrar && inicio && fim) {
-          const inicioDate = Timestamp.fromDate(new Date(inicio + "T00:00:00"));
-          const fimDate = Timestamp.fromDate(new Date(fim + "T23:59:59"));
-          q = query(colRef, where("timestamp", ">=", inicioDate), where("timestamp", "<=", fimDate), orderBy("timestamp", "desc"));
-        } else {
-          q = query(colRef, orderBy("timestamp", "desc"));
-        }
-
-      } else {
-        filtroDiv.style.display = "none";
-        q = query(colRef, where("userId", "==", user.uid), orderBy("timestamp", "desc"));
+      if (user.email !== admEmail) {
+        filtros.push(where("userId", "==", user.uid));
       }
+
+      if (dataInicio) {
+        const inicio = Timestamp.fromDate(new Date(dataInicio + "T00:00:00"));
+        filtros.push(where("timestamp", ">=", inicio));
+      }
+
+      if (dataFim) {
+        const fim = Timestamp.fromDate(new Date(dataFim + "T23:59:59"));
+        filtros.push(where("timestamp", "<=", fim));
+      }
+
+      filtros.push(orderBy("timestamp", "desc"));
+
+      q = query(q, ...filtros);
 
       const snapshot = await getDocs(q);
       snapshot.forEach(doc => {
@@ -188,8 +244,8 @@
       } else {
         loginForm.style.display = "block";
         content.style.display = "none";
+        botoesPonto.style.display = "none";
         registrosDiv.innerHTML = "";
-        filtroDiv.style.display = "none";
       }
     });
   </script>
