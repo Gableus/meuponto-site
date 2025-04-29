@@ -5,46 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Ponto</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    #content { display: none; }
-    #botoes-ponto button, #filtro button { margin: 5px; padding: 8px 12px; border: none; color: white; cursor: pointer; }
-    #entrada-btn, #saida-btn { background-color: #2962ff; }
-    #sair { background-color: #d32f2f; }
-    #filtro input { padding: 5px; margin-right: 5px; }
-    #filtro button { background-color: #0288d1; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: #0d47a1;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    form input {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-blue { background: #0d47a1; color: white; }
+    .btn-red { background: #d32f2f; color: white; }
+
+    #filtro { margin: 20px 0; }
+
+    #registros p {
+      border-bottom: 1px solid #ccc;
+      padding: 5px 0;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Meu Ponto</h1>
+  <header><h1>Meu Ponto</h1></header>
 
-  <form id="login-form">
-    <input type="text" name="nome" placeholder="Seu nome" required /><br />
-    <input type="email" name="email" placeholder="Email" required /><br />
-    <input type="password" name="password" placeholder="Senha" required /><br />
-    <button type="submit">Entrar / Cadastrar</button>
-  </form>
+  <div class="container">
+    <form id="login-form">
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Senha" required />
+      <button type="submit" class="btn-blue">Entrar / Cadastrar</button>
+    </form>
 
-  <div id="content">
-    <div id="botoes-ponto">
-      <button id="entrada-btn">Registrar Entrada</button>
-      <button id="saida-btn">Registrar Saída</button>
-      <button id="sair">Sair</button>
+    <div id="content" style="display:none;">
+      <div id="botoes-ponto">
+        <button id="entrada-btn" class="btn-blue">Registrar Entrada</button>
+        <button id="saida-btn" class="btn-blue">Registrar Saída</button>
+        <button id="sair" class="btn-red">Sair</button>
+      </div>
+
+      <div id="filtro" style="display:none;">
+        <label>Filtrar por data:</label><br/>
+        <input type="date" id="inicio" />
+        <input type="date" id="fim" />
+        <button id="btn-filtrar" class="btn-blue">Filtrar</button>
+      </div>
+
+      <div id="registros"><h3>Registros</h3></div>
     </div>
-
-    <div id="filtro">
-      <input type="date" id="inicio" />
-      <input type="date" id="fim" />
-      <button id="filtrar-btn">Filtrar</button>
-    </div>
-
-    <div id="registros"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpiNXMk9fNcr5yP4a4J1ysKx7cfublWns",
@@ -58,7 +102,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
     const admEmail = "meuponto.net.br@gmail.com";
 
     const loginForm = document.getElementById("login-form");
@@ -68,21 +111,17 @@
     const sairBtn = document.getElementById("sair");
     const entradaBtn = document.getElementById("entrada-btn");
     const saidaBtn = document.getElementById("saida-btn");
-    const filtrarBtn = document.getElementById("filtrar-btn");
+    const filtroDiv = document.getElementById("filtro");
+    const btnFiltrar = document.getElementById("btn-filtrar");
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const nome = loginForm.nome.value.trim();
       const email = loginForm.email.value;
       const senha = loginForm.password.value;
       try {
         await signInWithEmailAndPassword(auth, email, senha);
       } catch {
-        const userCred = await createUserWithEmailAndPassword(auth, email, senha);
-        await setDoc(doc(db, "usuarios", userCred.user.uid), {
-          nome: nome,
-          email: email
-        });
+        await createUserWithEmailAndPassword(auth, email, senha);
       }
     });
 
@@ -92,12 +131,14 @@
 
     entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
     saidaBtn.addEventListener("click", () => registrarPonto("saida"));
+    btnFiltrar.addEventListener("click", () => mostrarRegistros(true));
 
     async function registrarPonto(tipo) {
       const user = auth.currentUser;
       if (!user) return;
       await addDoc(collection(db, "pontos"), {
         userId: user.uid,
+        email: user.email,
         tipo: tipo,
         timestamp: serverTimestamp()
       });
@@ -105,51 +146,40 @@
       mostrarRegistros();
     }
 
-    async function mostrarRegistros() {
+    async function mostrarRegistros(filtrar = false) {
       registrosDiv.innerHTML = "<h3>Registros</h3>";
       const user = auth.currentUser;
-      if (!user) return;
+      let q;
 
-      let q = query(collection(db, "pontos"), orderBy("timestamp", "desc"));
+      const colRef = collection(db, "pontos");
 
-      if (user.email !== admEmail) {
-        q = query(collection(db, "pontos"), where("userId", "==", user.uid), orderBy("timestamp", "desc"));
-      }
+      if (user.email === admEmail) {
+        filtroDiv.style.display = "block";
+        const inicio = document.getElementById("inicio").value;
+        const fim = document.getElementById("fim").value;
 
-      const inicio = document.getElementById("inicio").value;
-      const fim = document.getElementById("fim").value;
-
-      const snapshot = await getDocs(q);
-
-      const nomesCache = {};
-
-      for (const docSnap of snapshot.docs) {
-        const d = docSnap.data();
-        if (!d.timestamp?.toDate) continue;
-
-        const dataHora = d.timestamp.toDate();
-        if (inicio && new Date(dataHora) < new Date(inicio)) continue;
-        if (fim && new Date(dataHora) > new Date(fim + "T23:59:59")) continue;
-
-        let nome = "Desconhecido";
-        if (nomesCache[d.userId]) {
-          nome = nomesCache[d.userId];
+        if (filtrar && inicio && fim) {
+          const inicioDate = Timestamp.fromDate(new Date(inicio + "T00:00:00"));
+          const fimDate = Timestamp.fromDate(new Date(fim + "T23:59:59"));
+          q = query(colRef, where("timestamp", ">=", inicioDate), where("timestamp", "<=", fimDate), orderBy("timestamp", "desc"));
         } else {
-          const userDoc = await getDoc(doc(db, "usuarios", d.userId));
-          if (userDoc.exists()) {
-            nome = userDoc.data().nome;
-            nomesCache[d.userId] = nome;
-          }
+          q = query(colRef, orderBy("timestamp", "desc"));
         }
 
-        const dataStr = dataHora.toLocaleString("pt-BR");
-        registrosDiv.innerHTML += `<p><strong>${nome}</strong> - ${d.tipo} às ${dataStr}</p>`;
+      } else {
+        filtroDiv.style.display = "none";
+        q = query(colRef, where("userId", "==", user.uid), orderBy("timestamp", "desc"));
       }
+
+      const snapshot = await getDocs(q);
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        const dataHora = d.timestamp?.toDate().toLocaleString("pt-BR");
+        registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataHora}</p>`;
+      });
     }
 
-    filtrarBtn.onclick = () => mostrarRegistros();
-
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         loginForm.style.display = "none";
         content.style.display = "block";
@@ -158,8 +188,8 @@
       } else {
         loginForm.style.display = "block";
         content.style.display = "none";
-        botoesPonto.style.display = "none";
         registrosDiv.innerHTML = "";
+        filtroDiv.style.display = "none";
       }
     });
   </script>
