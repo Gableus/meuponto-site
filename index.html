@@ -12,86 +12,80 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(120deg, #0d47a1, #42a5f5);
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
 
-    .container-login {
+    .container {
       display: flex;
-      align-items: center;
+      flex-direction: row;
       justify-content: center;
-      flex-wrap: wrap;
-      max-width: 900px;
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      padding: 40px 20px;
-    }
-
-    .logo-box {
-      flex: 1;
+      align-items: center;
+      max-width: 1000px;
+      width: 100%;
       padding: 20px;
-      text-align: center;
     }
 
-    .logo-box h1 {
-      font-size: 48px;
-      color: #0d47a1;
-      margin-bottom: 20px;
-    }
-
-    .logo-box p {
-      font-size: 18px;
-      color: #333;
-    }
-
-    .form-box {
+    .texto-esquerda {
       flex: 1;
       padding: 20px;
     }
 
-    #login-form {
-      background: white;
-      display: flex;
-      flex-direction: column;
+    .texto-esquerda h1 {
+      color: #1877f2;
+      font-size: 50px;
+      margin-bottom: 10px;
     }
 
-    #login-form input {
-      padding: 12px;
-      margin-bottom: 15px;
-      font-size: 15px;
+    .texto-esquerda p {
+      font-size: 20px;
+      color: #1c1e21;
+    }
+
+    .login-box {
+      flex: 1;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      font-size: 16px;
     }
 
-    #login-form button {
-      padding: 12px;
-      background-color: #1976d2;
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      background-color: #1877f2;
       color: white;
+      font-size: 16px;
       border: none;
       border-radius: 6px;
-      font-size: 16px;
       cursor: pointer;
     }
 
-    #login-form button:hover {
-      background-color: #0d47a1;
+    .login-box button:hover {
+      background-color: #155dbd;
     }
 
     #content {
       display: none;
       padding: 30px;
-      margin-top: 20px;
-      width: 100%;
       max-width: 800px;
       background: white;
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(0,0,0,0.05);
+      margin-top: 20px;
     }
 
     #botoes-ponto button,
@@ -133,29 +127,27 @@
     }
 
     @media (max-width: 768px) {
-      .container-login {
+      .container {
         flex-direction: column;
-        padding: 20px;
+        align-items: center;
       }
-      .logo-box h1 {
-        font-size: 36px;
+      .texto-esquerda {
+        text-align: center;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container-login">
-    <div class="logo-box">
+  <div class="container" id="login-container">
+    <div class="texto-esquerda">
       <h1>Meu Ponto</h1>
-      <p>Registre o seu dia com praticidade.<br>O Meu Ponto cuida da organização por você.</p>
+      <p>Registre o seu dia com praticidade. O Meu Ponto cuida da organização por você.</p>
     </div>
-    <div class="form-box">
-      <form id="login-form">
-        <input type="email" name="email" placeholder="Email" required />
-        <input type="password" name="password" placeholder="Senha" required />
-        <button type="submit">Entrar / Cadastrar</button>
-      </form>
-    </div>
+    <form class="login-box" id="login-form">
+      <input type="email" name="email" placeholder="Email" required />
+      <input type="password" name="password" placeholder="Senha" required />
+      <button type="submit">Entrar / Cadastrar</button>
+    </form>
   </div>
 
   <div id="content">
@@ -176,7 +168,140 @@
   </div>
 
   <script type="module">
-    // ... [o script JS completo que você já tem pode ser colado aqui como está, sem alterações] ...
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      query,
+      where,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpiNXMk9fNcr5yP4a4J1ysKx7cfublWns",
+      authDomain: "meuponto-9cdc2.firebaseapp.com",
+      projectId: "meuponto-9cdc2",
+      storageBucket: "meuponto-9cdc2.appspot.com",
+      messagingSenderId: "263074488820",
+      appId: "1:263074488820:web:54a7daedd1c5a8f8ef19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const admEmail = "meuponto.net.br@gmail.com";
+
+    const loginForm = document.getElementById("login-form");
+    const loginContainer = document.getElementById("login-container");
+    const content = document.getElementById("content");
+    const botoesPonto = document.getElementById("botoes-ponto");
+    const registrosDiv = document.getElementById("registros");
+    const sairBtn = document.getElementById("sair");
+    const entradaBtn = document.getElementById("entrada-btn");
+    const saidaBtn = document.getElementById("saida-btn");
+    const filtrarBtn = document.getElementById("filtrar-btn");
+    const exportarBtn = document.getElementById("exportar-btn");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = loginForm.email.value;
+      const senha = loginForm.password.value;
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+      } catch {
+        await createUserWithEmailAndPassword(auth, email, senha);
+      }
+    });
+
+    sairBtn.addEventListener("click", () => {
+      signOut(auth);
+    });
+
+    entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
+    saidaBtn.addEventListener("click", () => registrarPonto("saida"));
+
+    async function registrarPonto(tipo) {
+      const user = auth.currentUser;
+      if (!user) return;
+      await addDoc(collection(db, "pontos"), {
+        userId: user.uid,
+        email: user.email,
+        tipo: tipo,
+        timestamp: serverTimestamp()
+      });
+      alert(`Ponto de ${tipo} registrado com sucesso!`);
+      mostrarRegistros();
+    }
+
+    async function mostrarRegistros() {
+      registrosDiv.innerHTML = "<h3>Registros</h3>";
+      const user = auth.currentUser;
+      if (!user) return;
+
+      let q = query(collection(db, "pontos"), orderBy("timestamp", "desc"));
+      if (user.email !== admEmail) {
+        q = query(collection(db, "pontos"), where("userId", "==", user.uid), orderBy("timestamp", "desc"));
+      }
+
+      const inicio = document.getElementById("inicio").value;
+      const fim = document.getElementById("fim").value;
+
+      const snapshot = await getDocs(q);
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        if (d.timestamp?.toDate) {
+          const dataHora = d.timestamp.toDate();
+          const dataStr = dataHora.toLocaleString("pt-BR");
+
+          if (inicio && new Date(dataHora) < new Date(inicio)) return;
+          if (fim && new Date(dataHora) > new Date(fim + "T23:59:59")) return;
+
+          registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
+        }
+      });
+    }
+
+    filtrarBtn.onclick = () => mostrarRegistros();
+
+    exportarBtn.addEventListener("click", () => {
+      const registros = document.getElementById("registros").innerHTML;
+      const blob = new Blob(
+        [`<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>`],
+        { type: "application/vnd.ms-excel" }
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "registros.xls";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginContainer.style.display = "none";
+        content.style.display = "block";
+        botoesPonto.style.display = "flex";
+        mostrarRegistros();
+      } else {
+        loginContainer.style.display = "flex";
+        content.style.display = "none";
+        botoesPonto.style.display = "none";
+        registrosDiv.innerHTML = "";
+      }
+    });
   </script>
 </body>
 </html>
