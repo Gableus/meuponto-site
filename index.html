@@ -6,122 +6,102 @@
   <title>Meu Ponto</title>
   <style>
     <style>
-  <style>
-  <style>
-  * {
-    box-sizing: border-box;
-  }
-
   body {
     margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f0f4f8;
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    background: #f0f2f5;
     height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
-    flex-direction: column;
+    justify-content: center;
   }
 
-  h1 {
-    color: #0d47a1;
+  .container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 900px;
+    width: 100%;
+    background: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .esquerda {
+    flex: 1;
+    background: #fff;
+    padding: 50px 40px;
+  }
+
+  .esquerda h1 {
+    font-size: 48px;
+    color: #1877f2;
     margin-bottom: 20px;
   }
 
+  .esquerda p {
+    font-size: 20px;
+    color: #1c1e21;
+  }
+
+  .direita {
+    flex: 1;
+    background: #ffffff;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-left: 1px solid #ddd;
+  }
+
   #login-form {
-    width: 100%;
-    max-width: 360px;
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
   }
 
   #login-form input {
-    width: 100%;
     padding: 12px;
-    margin: 10px 0;
+    font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-size: 15px;
   }
 
   #login-form button {
-    width: 100%;
-    padding: 12px;
-    background-color: #1976d2;
+    background-color: #1877f2;
     color: white;
     border: none;
-    border-radius: 6px;
+    padding: 12px;
     font-size: 16px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background 0.3s;
   }
 
   #login-form button:hover {
-    background-color: #0d47a1;
+    background-color: #145dbf;
   }
 
   #content {
     display: none;
-    padding: 30px;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 800px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.05);
   }
+</style>
 
-  #botoes-ponto button,
-  #filtro button,
-  #exportar-btn {
-    margin: 5px 5px 10px 0;
-    padding: 10px 14px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    border-radius: 6px;
-    font-size: 14px;
-  }
-
-  #entrada-btn, #saida-btn { background-color: #1976d2; }
-  #sair { background-color: #d32f2f; }
-  #exportar-btn { background-color: #388e3c; }
-  #filtro button { background-color: #0288d1; }
-
-  #filtro input {
-    padding: 8px;
-    margin-right: 5px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-
-  #registros {
-    margin-top: 20px;
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
-  }
-
-  #registros p {
-    margin: 6px 0;
-    font-size: 14px;
-    color: #333;
-  }
-
-  @media (max-width: 600px) {
-    #content, #login-form {
-      margin: 20px;
-      width: auto;
-    }
-
-    body {
-      padding: 20px;
-    }
-  }
+<body>
+  <div class="container">
+    <div class="esquerda">
+      <h1>Meu Ponto</h1>
+      <p>Registre o seu dia com praticidade. O Meu Ponto cuida da organização por você.</p>
+    </div>
+    <div class="direita">
+      <form id="login-form">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Senha" required />
+        <button type="submit">Entrar / Cadastrar</button>
+      </form>
+    </div>
+  </div>
+</body>
 </style>
 </head>
 <body>
