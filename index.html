@@ -5,88 +5,115 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Ponto</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f2f4f8;
-    }
+    <style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #e3f2fd, #ffffff);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-      color: #2c3e50;
-    }
+  h1 {
+    text-align: center;
+    margin-top: 40px;
+    color: #0d47a1;
+    font-size: 32px;
+  }
 
-    #login-form {
-      max-width: 320px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+  #login-form {
+    width: 100%;
+    max-width: 360px;
+    background: white;
+    padding: 30px;
+    margin-top: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.08);
+  }
 
-    #login-form input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
+  #login-form input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+  }
 
-    #login-form button {
-      width: 100%;
-      padding: 10px;
-      background-color: #2962ff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+  #login-form button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
 
-    #login-form button:hover {
-      background-color: #0039cb;
-    }
+  #login-form button:hover {
+    background-color: #0d47a1;
+  }
 
-    #content {
-      display: none;
-      padding: 20px;
-      max-width: 700px;
-      margin: auto;
-    }
+  #content {
+    display: none;
+    padding: 30px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+  }
 
-    #botoes-ponto button, #filtro button, #exportar-btn {
-      margin: 5px;
-      padding: 10px 14px;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 6px;
-      font-size: 14px;
-    }
+  #botoes-ponto button,
+  #filtro button,
+  #exportar-btn {
+    margin: 5px 5px 10px 0;
+    padding: 10px 14px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+  }
 
-    #entrada-btn, #saida-btn { background-color: #2962ff; }
-    #sair { background-color: #d32f2f; }
-    #filtro input {
-      padding: 8px;
-      margin-right: 5px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
+  #entrada-btn, #saida-btn { background-color: #1976d2; }
+  #sair { background-color: #d32f2f; }
+  #exportar-btn { background-color: #388e3c; }
+  #filtro button { background-color: #0288d1; }
 
-    #filtro button { background-color: #0288d1; }
-    #exportar-btn { background-color: #388e3c; }
+  #filtro input {
+    padding: 8px;
+    margin-right: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
 
-    #registros {
-      margin-top: 20px;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.05);
+  #registros {
+    margin-top: 20px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+  }
+
+  #registros p {
+    margin: 6px 0;
+    font-size: 14px;
+    color: #333;
+  }
+
+  @media (max-width: 600px) {
+    #content, #login-form {
+      margin: 20px;
+      width: auto;
     }
-  </style>
+  }
+</style>
 </head>
 <body>
 
