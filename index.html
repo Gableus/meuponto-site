@@ -5,87 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Ponto</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f7fc;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
     }
-
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      color: #1a73e8;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      background-color: #1a73e8;
-      border: none;
+    header {
+      background: #0d47a1;
       color: white;
-      border-radius: 5px;
+      padding: 10px 20px;
+    }
+    h1 {
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    form input {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      color: white;
       cursor: pointer;
-      transition: background-color 0.3s;
     }
-
-    button:hover {
-      background-color: #0c59c4;
+    #entrada-btn, #saida-btn {
+      background-color: #1565c0;
     }
-
-    #botoes-ponto button {
-      width: 48%;
-      margin: 5px 1%;
-    }
-
-    #registros {
-      margin-top: 20px;
-      text-align: left;
-    }
-
     #sair {
-      background-color: #d9534f;
+      background-color: #c62828;
     }
-
-    #sair:hover {
-      background-color: #c9302c;
+    #filtro-datas input {
+      padding: 5px;
+      margin-right: 10px;
+    }
+    #registros p {
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Meu Ponto</h1>
 
+  <header>
+    <h1>Meu Ponto</h1>
+  </header>
+
+  <div class="container">
     <form id="login-form">
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Senha" required />
-      <button type="submit">Entrar / Cadastrar</button>
+      <input type="email" name="email" placeholder="Email" required /><br />
+      <input type="password" name="password" placeholder="Senha" required /><br />
+      <button type="submit" style="background-color: #2e7d32;">Entrar / Cadastrar</button>
     </form>
 
     <div id="content" style="display: none;">
@@ -94,6 +76,13 @@
         <button id="saida-btn">Registrar Saída</button>
         <button id="sair">Sair</button>
       </div>
+
+      <div id="filtro-datas">
+        <label>De: <input type="date" id="data-inicio" /></label>
+        <label>Até: <input type="date" id="data-fim" /></label>
+        <button onclick="mostrarRegistros()" style="background-color: #0288d1;">Filtrar</button>
+      </div>
+
       <div id="registros"></div>
     </div>
   </div>
@@ -101,8 +90,23 @@
   <!-- Firebase SDK (módulo moderno) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      query,
+      where,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpiNXMk9fNcr5yP4a4J1ysKx7cfublWns",
@@ -116,18 +120,17 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
     const admEmail = "meuponto.net.br@gmail.com";
 
     const loginForm = document.getElementById("login-form");
     const content = document.getElementById("content");
-    const botoesPonto = document.getElementById("botoes-ponto");
     const registrosDiv = document.getElementById("registros");
-    const sairBtn = document.getElementById("sair");
-    const entradaBtn = document.getElementById("entrada-btn");
-    const saidaBtn = document.getElementById("saida-btn");
 
-    loginForm.addEventListener("submit", async (e) => {
+    document.getElementById("entrada-btn").onclick = () => registrarPonto("entrada");
+    document.getElementById("saida-btn").onclick = () => registrarPonto("saida");
+    document.getElementById("sair").onclick = () => signOut(auth);
+
+    loginForm.onsubmit = async (e) => {
       e.preventDefault();
       const email = loginForm.email.value;
       const senha = loginForm.password.value;
@@ -136,14 +139,7 @@
       } catch {
         await createUserWithEmailAndPassword(auth, email, senha);
       }
-    });
-
-    sairBtn.addEventListener("click", () => {
-      signOut(auth);
-    });
-
-    entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
-    saidaBtn.addEventListener("click", () => registrarPonto("saida"));
+    };
 
     async function registrarPonto(tipo) {
       const user = auth.currentUser;
@@ -162,14 +158,35 @@
       registrosDiv.innerHTML = "<h3>Registros</h3>";
       const user = auth.currentUser;
       let q;
+      const dataInicio = document.getElementById("data-inicio").value;
+      const dataFim = document.getElementById("data-fim").value;
 
-      if (user.email === admEmail) {
-        q = query(collection(db, "pontos"), orderBy("timestamp", "desc"));
-      } else {
-        q = query(collection(db, "pontos"), where("userId", "==", user.uid), orderBy("timestamp", "desc"));
+      const col = collection(db, "pontos");
+      let filtros = [];
+
+      if (user.email !== admEmail) {
+        filtros.push(where("userId", "==", user.uid));
       }
 
+      if (dataInicio) {
+        const inicio = new Date(dataInicio + "T00:00:00");
+        filtros.push(where("timestamp", ">=", inicio));
+      }
+
+      if (dataFim) {
+        const fim = new Date(dataFim + "T23:59:59");
+        filtros.push(where("timestamp", "<=", fim));
+      }
+
+      filtros.push(orderBy("timestamp", "desc"));
+      q = query(col, ...filtros);
+
       const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        registrosDiv.innerHTML += "<p>Nenhum registro encontrado.</p>";
+        return;
+      }
+
       snapshot.forEach(doc => {
         const d = doc.data();
         const dataHora = d.timestamp?.toDate().toLocaleString("pt-BR");
@@ -181,12 +198,10 @@
       if (user) {
         loginForm.style.display = "none";
         content.style.display = "block";
-        botoesPonto.style.display = "flex";
         mostrarRegistros();
       } else {
         loginForm.style.display = "block";
         content.style.display = "none";
-        botoesPonto.style.display = "none";
         registrosDiv.innerHTML = "";
       }
     });
