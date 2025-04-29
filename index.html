@@ -5,146 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Ponto</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f2f2f2;
-    }
-
-    header {
-      background-color: #0d47a1;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-
-    main {
-      padding: 20px;
-    }
-
-    #login-form {
-      max-width: 300px;
-      margin: 40px auto;
-      text-align: center;
-    }
-
-    #login-form input {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      width: 90%;
-    }
-
-    #login-form button {
-      padding: 10px 20px;
-      background-color: #0288d1;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #content {
-      display: none;
-      max-width: 600px;
-      margin: 20px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    #botoes-ponto {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    #botoes-ponto button {
-      padding: 10px 20px;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    #entrada-btn {
-      background-color: #1976d2;
-    }
-
-    #saida-btn {
-      background-color: #1565c0;
-    }
-
-    #sair {
-      background-color: #d32f2f;
-    }
-
-    #filtro {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    #filtro input {
-      padding: 5px;
-      margin: 0 5px;
-    }
-
-    #filtro button {
-      padding: 6px 12px;
-      background-color: #0288d1;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-
-    #registros {
-      margin-top: 20px;
-    }
-
-    #registros p {
-      background-color: #f0f0f0;
-      padding: 8px;
-      border-radius: 4px;
-      margin-bottom: 5px;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #content { display: none; }
+    #botoes-ponto button, #filtro button, #exportar-btn { margin: 5px; padding: 8px 12px; border: none; color: white; cursor: pointer; }
+    #entrada-btn, #saida-btn { background-color: #2962ff; }
+    #sair { background-color: #d32f2f; }
+    #filtro input { padding: 5px; margin-right: 5px; }
+    #filtro button { background-color: #0288d1; }
+    #exportar-btn { background-color: #388e3c; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Meu Ponto</h1>
-  </header>
 
-  <main>
-    <form id="login-form">
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Senha" required />
-      <button type="submit">Entrar / Cadastrar</button>
-    </form>
+  <h1>Meu Ponto</h1>
 
-    <div id="content">
-      <div id="botoes-ponto">
-        <button id="entrada-btn">Registrar Entrada</button>
-        <button id="saida-btn">Registrar Saída</button>
-        <button id="sair">Sair</button>
-      </div>
+  <form id="login-form">
+    <input type="email" name="email" placeholder="Email" required /><br />
+    <input type="password" name="password" placeholder="Senha" required /><br />
+    <button type="submit">Entrar / Cadastrar</button>
+  </form>
 
-      <div id="filtro">
-        <label>De: <input type="date" id="data-inicio"></label>
-        <label>Até: <input type="date" id="data-fim"></label>
-        <button id="filtrar-btn">Filtrar</button>
-      </div>
-
-      <div id="registros"></div>
+  <div id="content">
+    <div id="botoes-ponto">
+      <button id="entrada-btn">Registrar Entrada</button>
+      <button id="saida-btn">Registrar Saída</button>
+      <button id="sair">Sair</button>
     </div>
-  </main>
 
-  <!-- Firebase SDK -->
+    <div id="filtro">
+      <input type="date" id="inicio" />
+      <input type="date" id="fim" />
+      <button id="filtrar-btn">Filtrar</button>
+      <button id="exportar-btn">Exportar para Excel</button>
+    </div>
+
+    <div id="registros"></div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpiNXMk9fNcr5yP4a4J1ysKx7cfublWns",
@@ -168,6 +69,8 @@
     const sairBtn = document.getElementById("sair");
     const entradaBtn = document.getElementById("entrada-btn");
     const saidaBtn = document.getElementById("saida-btn");
+    const filtrarBtn = document.getElementById("filtrar-btn");
+    const exportarBtn = document.getElementById("exportar-btn");
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -180,10 +83,12 @@
       }
     });
 
-    sairBtn.addEventListener("click", () => signOut(auth));
+    sairBtn.addEventListener("click", () => {
+      signOut(auth);
+    });
+
     entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
     saidaBtn.addEventListener("click", () => registrarPonto("saida"));
-    document.getElementById("filtrar-btn").onclick = () => mostrarRegistros();
 
     async function registrarPonto(tipo) {
       const user = auth.currentUser;
@@ -203,37 +108,44 @@
       const user = auth.currentUser;
       if (!user) return;
 
-      const dataInicio = document.getElementById("data-inicio").value;
-      const dataFim = document.getElementById("data-fim").value;
-
-      let q = collection(db, "pontos");
-      let filtros = [];
-
+      let q = query(collection(db, "pontos"), orderBy("timestamp", "desc"));
       if (user.email !== admEmail) {
-        filtros.push(where("userId", "==", user.uid));
+        q = query(collection(db, "pontos"), where("userId", "==", user.uid), orderBy("timestamp", "desc"));
       }
 
-      if (dataInicio) {
-        const inicio = Timestamp.fromDate(new Date(dataInicio + "T00:00:00"));
-        filtros.push(where("timestamp", ">=", inicio));
-      }
-
-      if (dataFim) {
-        const fim = Timestamp.fromDate(new Date(dataFim + "T23:59:59"));
-        filtros.push(where("timestamp", "<=", fim));
-      }
-
-      filtros.push(orderBy("timestamp", "desc"));
-
-      q = query(q, ...filtros);
+      const inicio = document.getElementById("inicio").value;
+      const fim = document.getElementById("fim").value;
 
       const snapshot = await getDocs(q);
       snapshot.forEach(doc => {
         const d = doc.data();
-        const dataHora = d.timestamp?.toDate().toLocaleString("pt-BR");
-        registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataHora}</p>`;
+        if (d.timestamp?.toDate) {
+          const dataHora = d.timestamp.toDate();
+          const dataStr = dataHora.toLocaleString("pt-BR");
+
+          if (inicio && new Date(dataHora) < new Date(inicio)) return;
+          if (fim && new Date(dataHora) > new Date(fim + "T23:59:59")) return;
+
+          registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
+        }
       });
     }
+
+    filtrarBtn.onclick = () => mostrarRegistros();
+
+    exportarBtn.addEventListener("click", () => {
+      const registros = document.getElementById("registros").innerHTML;
+      const blob = new Blob(
+        [`<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>`],
+        { type: "application/vnd.ms-excel" }
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "registros.xls";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
