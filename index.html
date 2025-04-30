@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Ponto</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -126,6 +127,7 @@
     #entrada-btn, #saida-btn { background-color: #1976d2; }
     #sair { background-color: #d32f2f; float: right; }
     #exportar-btn { background-color: #388e3c; }
+    #exportar-pdf-btn { background-color: #6a1b9a; }
     #filtro button { background-color: #0288d1; }
 
     #filtro input {
@@ -332,6 +334,40 @@
       a.download = "registros.xls";
       a.click();
       URL.revokeObjectURL(url);
+    });
+
+    // PDF EXPORTAÇÃO
+    const exportarPdfBtn = document.createElement("button");
+    exportarPdfBtn.textContent = "Exportar para PDF";
+    exportarPdfBtn.id = "exportar-pdf-btn";
+    document.getElementById("filtro").insertBefore(exportarPdfBtn, sairBtn);
+
+    exportarPdfBtn.addEventListener("click", () => {
+      const registros = document.querySelectorAll("#registros p");
+      if (registros.length === 0) {
+        alert("Nenhum registro para exportar.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      let y = 10;
+      doc.setFontSize(12);
+      doc.text("Registros de Ponto", 10, y);
+      y += 10;
+
+      registros.forEach((p) => {
+        const texto = p.textContent || "";
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+        doc.text(texto, 10, y);
+        y += 8;
+      });
+
+      doc.save("registros.pdf");
     });
 
     onAuthStateChanged(auth, (user) => {
