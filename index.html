@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meu Ponto</title>
   <style>
     * {
@@ -11,96 +11,36 @@
 
     body {
       margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
       background-color: #f0f2f5;
     }
 
-    .container {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      padding: 20px;
-    }
-
-    .texto-esquerda {
-      flex: 1;
-      padding: 20px;
-    }
-
-    .texto-esquerda h1 {
-      color: #1877f2;
-      font-size: 50px;
-      margin-bottom: 10px;
-    }
-
-    .texto-esquerda p {
-      font-size: 20px;
-      color: #1c1e21;
-    }
-
-    .login-box {
-      flex: 1;
-      background-color: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    .login-box input {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-
-    .login-box button {
-      width: 100%;
-      padding: 14px;
-      background-color: #1877f2;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .login-box button:hover {
-      background-color: #155dbd;
-    }
-
-    #content {
-      display: none;
-      max-width: 900px;
-      margin: 0 auto;
-      padding-top: 120px;
-    }
-
-    #topo-botoes {
+    .top-bar {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       background: white;
-      z-index: 1000;
+      z-index: 999;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
+      align-items: center;
       gap: 10px;
-      padding: 15px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-    .btn {
-      padding: 10px 14px;
-      border: none;
-      border-radius: 6px;
-      color: white;
+    .top-bar button,
+    .top-bar input {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
       font-size: 14px;
+    }
+
+    .top-bar button {
+      color: white;
+      border: none;
       cursor: pointer;
     }
 
@@ -110,69 +50,43 @@
     #exportar-btn { background-color: #388e3c; }
     #sair { background-color: #d32f2f; }
 
-    #filtro input[type="date"] {
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-
-    #filtro {
-      display: flex;
-      gap: 5px;
-      align-items: center;
+    #content {
+      margin-top: 80px; /* espaço da barra fixa */
+      padding: 20px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     #registros {
-      margin-top: 20px;
-      background: #f8f9fa;
+      background: #fff;
       padding: 15px;
       border-radius: 8px;
-      box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     }
 
     #registros p {
-      margin: 6px 0;
+      margin: 5px 0;
       font-size: 14px;
-      color: #333;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        align-items: center;
-      }
-      .texto-esquerda {
-        text-align: center;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="container" id="login-container">
-    <div class="texto-esquerda">
-      <h1>Meu Ponto</h1>
-      <p>Registre o seu dia com praticidade. O Meu Ponto cuida da organização por você.</p>
-    </div>
-    <form class="login-box" id="login-form">
-      <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Senha" required />
-      <button type="submit">Entrar / Cadastrar</button>
-    </form>
+  <div class="top-bar">
+    <button id="entrada-btn">Registrar Entrada</button>
+    <button id="saida-btn">Registrar Saída</button>
+    <input type="date" id="inicio">
+    <input type="date" id="fim">
+    <button id="filtrar-btn">Filtrar</button>
+    <button id="exportar-btn">Exportar Excel</button>
+    <button id="sair">Sair</button>
   </div>
 
   <div id="content">
-    <div id="topo-botoes">
-      <button id="entrada-btn" class="btn">Registrar Entrada</button>
-      <button id="saida-btn" class="btn">Registrar Saída</button>
-      <div id="filtro">
-        <input type="date" id="inicio" />
-        <input type="date" id="fim" />
-        <button id="filtrar-btn" class="btn">Filtrar</button>
-      </div>
-      <button id="exportar-btn" class="btn">Exportar Excel</button>
-      <button id="sair" class="btn">Sair</button>
+    <div id="registros">
+      <h3>Registros</h3>
+      <!-- registros serão preenchidos aqui -->
     </div>
-    <div id="registros"></div>
   </div>
 
   <script type="module">
@@ -211,33 +125,21 @@
 
     const admEmail = "meuponto.net.br@gmail.com";
 
-    const loginForm = document.getElementById("login-form");
-    const loginContainer = document.getElementById("login-container");
-    const content = document.getElementById("content");
-    const registrosDiv = document.getElementById("registros");
-    const sairBtn = document.getElementById("sair");
     const entradaBtn = document.getElementById("entrada-btn");
     const saidaBtn = document.getElementById("saida-btn");
     const filtrarBtn = document.getElementById("filtrar-btn");
     const exportarBtn = document.getElementById("exportar-btn");
+    const sairBtn = document.getElementById("sair");
 
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = loginForm.email.value;
-      const senha = loginForm.password.value;
-      try {
-        await signInWithEmailAndPassword(auth, email, senha);
-      } catch {
-        await createUserWithEmailAndPassword(auth, email, senha);
-      }
-    });
-
-    sairBtn.addEventListener("click", () => {
-      signOut(auth);
-    });
+    const registrosDiv = document.getElementById("registros");
 
     entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
     saidaBtn.addEventListener("click", () => registrarPonto("saida"));
+
+    sairBtn.addEventListener("click", () => {
+      signOut(auth);
+      location.reload();
+    });
 
     async function registrarPonto(tipo) {
       const user = auth.currentUser;
@@ -283,11 +185,10 @@
     filtrarBtn.onclick = () => mostrarRegistros();
 
     exportarBtn.addEventListener("click", () => {
-      const registros = document.getElementById("registros").innerHTML;
-      const blob = new Blob(
-        [`<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>`],
-        { type: "application/vnd.ms-excel" }
-      );
+      const registros = registrosDiv.innerHTML;
+      const blob = new Blob([
+        `<html><head><meta charset='UTF-8'></head><body>${registros}</body></html>`
+      ], { type: "application/vnd.ms-excel" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -298,13 +199,10 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        loginContainer.style.display = "none";
-        content.style.display = "block";
+        document.getElementById("content").style.display = "block";
         mostrarRegistros();
       } else {
-        loginContainer.style.display = "flex";
-        content.style.display = "none";
-        registrosDiv.innerHTML = "";
+        document.body.innerHTML = '<h2 style="text-align:center;padding-top:40px;">Você foi desconectado. Recarregue a página.</h2>';
       }
     });
   </script>
