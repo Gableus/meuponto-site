@@ -14,10 +14,6 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background-color: #f0f2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
     }
 
     .container {
@@ -25,8 +21,7 @@
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      max-width: 1000px;
-      width: 100%;
+      height: 100vh;
       padding: 20px;
     }
 
@@ -63,21 +58,6 @@
       font-size: 16px;
     }
 
-    .login-box .senha-container {
-      position: relative;
-    }
-
-    .senha-container input {
-      padding-right: 40px;
-    }
-
-    .senha-container .toggle-password {
-      position: absolute;
-      right: 10px;
-      top: 12px;
-      cursor: pointer;
-    }
-
     .login-box button {
       width: 100%;
       padding: 14px;
@@ -93,44 +73,53 @@
       background-color: #155dbd;
     }
 
-    .login-box .cadastro-btn {
-      margin-top: 10px;
-      background-color: #42b72a;
-    }
-
     #content {
       display: none;
-      padding: 30px;
-      max-width: 800px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.05);
-      margin-top: 20px;
-      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      padding-top: 120px;
     }
 
-    #botoes-ponto button,
-    #filtro button,
-    #exportar-btn {
-      margin: 5px 5px 10px 0;
+    #topo-botoes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      z-index: 1000;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn {
       padding: 10px 14px;
       border: none;
-      color: white;
-      cursor: pointer;
       border-radius: 6px;
+      color: white;
       font-size: 14px;
+      cursor: pointer;
     }
 
-    #entrada-btn, #saida-btn { background-color: #1976d2; }
-    #sair { background-color: #d32f2f; position: absolute; top: 20px; right: 20px; }
+    #entrada-btn { background-color: #1976d2; }
+    #saida-btn { background-color: #1976d2; }
+    #filtrar-btn { background-color: #0288d1; }
     #exportar-btn { background-color: #388e3c; }
-    #filtro button { background-color: #0288d1; }
+    #sair { background-color: #d32f2f; }
 
-    #filtro input, #filtro select {
+    #filtro input[type="date"] {
       padding: 8px;
-      margin-right: 5px;
       border-radius: 4px;
       border: 1px solid #ccc;
+    }
+
+    #filtro {
+      display: flex;
+      gap: 5px;
+      align-items: center;
     }
 
     #registros {
@@ -166,31 +155,23 @@
     </div>
     <form class="login-box" id="login-form">
       <input type="email" name="email" placeholder="Email" required />
-      <div class="senha-container">
-        <input type="password" name="password" id="password" placeholder="Senha" required />
-        <span class="toggle-password">👁️</span>
-      </div>
-      <button type="submit">Entrar</button>
-      <button type="button" class="cadastro-btn" id="cadastro-btn">Cadastrar nova conta</button>
+      <input type="password" name="password" placeholder="Senha" required />
+      <button type="submit">Entrar / Cadastrar</button>
     </form>
   </div>
 
   <div id="content">
-    <div id="botoes-ponto">
-      <button id="entrada-btn">Registrar Entrada</button>
-      <button id="saida-btn">Registrar Saída</button>
+    <div id="topo-botoes">
+      <button id="entrada-btn" class="btn">Registrar Entrada</button>
+      <button id="saida-btn" class="btn">Registrar Saída</button>
+      <div id="filtro">
+        <input type="date" id="inicio" />
+        <input type="date" id="fim" />
+        <button id="filtrar-btn" class="btn">Filtrar</button>
+      </div>
+      <button id="exportar-btn" class="btn">Exportar Excel</button>
+      <button id="sair" class="btn">Sair</button>
     </div>
-
-    <div id="filtro">
-      <input type="date" id="inicio" />
-      <input type="date" id="fim" />
-      <input type="text" id="emailFiltro" placeholder="Filtrar por e-mail" />
-      <button id="filtrar-btn">Filtrar</button>
-      <button id="exportar-btn">Exportar para Excel</button>
-    </div>
-
-    <button id="sair">Sair</button>
-
     <div id="registros"></div>
   </div>
 
@@ -231,38 +212,24 @@
     const admEmail = "meuponto.net.br@gmail.com";
 
     const loginForm = document.getElementById("login-form");
-    const cadastroBtn = document.getElementById("cadastro-btn");
     const loginContainer = document.getElementById("login-container");
     const content = document.getElementById("content");
     const registrosDiv = document.getElementById("registros");
+    const sairBtn = document.getElementById("sair");
     const entradaBtn = document.getElementById("entrada-btn");
     const saidaBtn = document.getElementById("saida-btn");
-    const sairBtn = document.getElementById("sair");
     const filtrarBtn = document.getElementById("filtrar-btn");
     const exportarBtn = document.getElementById("exportar-btn");
-    const emailFiltro = document.getElementById("emailFiltro");
-
-    let modoCadastro = false;
-
-    cadastroBtn.addEventListener("click", () => {
-      modoCadastro = true;
-      loginForm.requestSubmit();
-    });
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = loginForm.email.value;
       const senha = loginForm.password.value;
       try {
-        if (modoCadastro) {
-          await createUserWithEmailAndPassword(auth, email, senha);
-        } else {
-          await signInWithEmailAndPassword(auth, email, senha);
-        }
-      } catch (error) {
-        alert("Erro: " + error.message);
+        await signInWithEmailAndPassword(auth, email, senha);
+      } catch {
+        await createUserWithEmailAndPassword(auth, email, senha);
       }
-      modoCadastro = false;
     });
 
     sairBtn.addEventListener("click", () => {
@@ -297,7 +264,6 @@
 
       const inicio = document.getElementById("inicio").value;
       const fim = document.getElementById("fim").value;
-      const emailFiltroValor = emailFiltro.value.trim().toLowerCase();
 
       const snapshot = await getDocs(q);
       snapshot.forEach(doc => {
@@ -308,7 +274,6 @@
 
           if (inicio && new Date(dataHora) < new Date(inicio)) return;
           if (fim && new Date(dataHora) > new Date(fim + "T23:59:59")) return;
-          if (emailFiltroValor && !d.email.toLowerCase().startsWith(emailFiltroValor)) return;
 
           registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
         }
@@ -341,13 +306,6 @@
         content.style.display = "none";
         registrosDiv.innerHTML = "";
       }
-    });
-
-    // Mostrar senha
-    document.querySelector(".toggle-password").addEventListener("click", () => {
-      const passwordInput = document.getElementById("password");
-      const type = passwordInput.type === "password" ? "text" : "password";
-      passwordInput.type = type;
     });
   </script>
 </body>
