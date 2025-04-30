@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Ponto</title>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
@@ -16,6 +19,7 @@
       align-items: center;
       height: 100vh;
     }
+
     .container {
       display: flex;
       flex-direction: row;
@@ -25,19 +29,23 @@
       width: 100%;
       padding: 20px;
     }
+
     .texto-esquerda {
       flex: 1;
       padding: 20px;
     }
+
     .texto-esquerda h1 {
       color: #1877f2;
       font-size: 50px;
       margin-bottom: 10px;
     }
+
     .texto-esquerda p {
       font-size: 20px;
       color: #1c1e21;
     }
+
     .login-box {
       flex: 1;
       background-color: white;
@@ -45,6 +53,7 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+
     .login-box input {
       width: 100%;
       padding: 14px;
@@ -53,6 +62,7 @@
       border-radius: 6px;
       font-size: 16px;
     }
+
     .login-box button {
       width: 100%;
       padding: 14px;
@@ -63,7 +73,40 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    .login-box button:hover { background-color: #155dbd; }
+
+    .login-box button:hover {
+      background-color: #155dbd;
+    }
+
+    .ver-senha {
+      position: relative;
+    }
+
+    .ver-senha input {
+      padding-right: 40px;
+    }
+
+    .ver-senha span {
+      position: absolute;
+      right: 10px;
+      top: 12px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .criar-conta {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+      color: #1877f2;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .criar-conta:hover {
+      text-decoration: underline;
+    }
+
     #content {
       display: none;
       padding: 30px;
@@ -73,6 +116,7 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.05);
       margin-top: 20px;
     }
+
     #botoes-ponto button,
     #filtro button,
     #exportar-btn {
@@ -84,16 +128,19 @@
       border-radius: 6px;
       font-size: 14px;
     }
+
     #entrada-btn, #saida-btn { background-color: #1976d2; }
     #sair { background-color: #d32f2f; }
     #exportar-btn { background-color: #388e3c; }
     #filtro button { background-color: #0288d1; }
-    #filtro input {
+
+    #filtro input, #email-filtro {
       padding: 8px;
       margin-right: 5px;
       border-radius: 4px;
       border: 1px solid #ccc;
     }
+
     #registros {
       margin-top: 20px;
       background: #f8f9fa;
@@ -101,17 +148,21 @@
       border-radius: 8px;
       box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
     }
+
     #registros p {
       margin: 6px 0;
       font-size: 14px;
       color: #333;
     }
+
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
         align-items: center;
       }
-      .texto-esquerda { text-align: center; }
+      .texto-esquerda {
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -123,8 +174,12 @@
     </div>
     <form class="login-box" id="login-form">
       <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Senha" required />
-      <button type="submit">Entrar / Cadastrar</button>
+      <div class="ver-senha">
+        <input type="password" name="password" id="senha" placeholder="Senha" required />
+        <span id="toggleSenha">&#128065;</span>
+      </div>
+      <button type="submit">Entrar</button>
+      <span class="criar-conta" id="criarConta">Criar nova conta</span>
     </form>
   </div>
 
@@ -136,9 +191,9 @@
     </div>
 
     <div id="filtro">
+      <input type="text" id="email-filtro" placeholder="Filtrar por nome do email" />
       <input type="date" id="inicio" />
       <input type="date" id="fim" />
-      <input type="text" id="email-filtro" placeholder="Filtrar por e-mail" />
       <button id="filtrar-btn">Filtrar</button>
       <button id="exportar-btn">Exportar para Excel</button>
     </div>
@@ -155,6 +210,7 @@
       onAuthStateChanged,
       signOut
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
     import {
       getFirestore,
       collection,
@@ -180,6 +236,7 @@
     const db = getFirestore(app);
 
     const admEmail = "meuponto.net.br@gmail.com";
+
     const loginForm = document.getElementById("login-form");
     const loginContainer = document.getElementById("login-container");
     const content = document.getElementById("content");
@@ -190,19 +247,41 @@
     const saidaBtn = document.getElementById("saida-btn");
     const filtrarBtn = document.getElementById("filtrar-btn");
     const exportarBtn = document.getElementById("exportar-btn");
+    const emailFiltroInput = document.getElementById("email-filtro");
+    const senhaInput = document.getElementById("senha");
+    const toggleSenha = document.getElementById("toggleSenha");
+    const criarConta = document.getElementById("criarConta");
+
+    toggleSenha.addEventListener("click", () => {
+      senhaInput.type = senhaInput.type === "password" ? "text" : "password";
+    });
+
+    let criandoConta = false;
+
+    criarConta.addEventListener("click", () => {
+      criandoConta = true;
+      alert("Digite um email e senha e clique novamente em Entrar para criar a conta.");
+    });
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = loginForm.email.value;
       const senha = loginForm.password.value;
       try {
-        await signInWithEmailAndPassword(auth, email, senha);
-      } catch {
-        await createUserWithEmailAndPassword(auth, email, senha);
+        if (criandoConta) {
+          await createUserWithEmailAndPassword(auth, email, senha);
+        } else {
+          await signInWithEmailAndPassword(auth, email, senha);
+        }
+      } catch (error) {
+        alert("Erro no login/cadastro: " + error.message);
       }
     });
 
-    sairBtn.addEventListener("click", () => signOut(auth));
+    sairBtn.addEventListener("click", () => {
+      signOut(auth);
+    });
+
     entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
     saidaBtn.addEventListener("click", () => registrarPonto("saida"));
 
@@ -231,7 +310,7 @@
 
       const inicio = document.getElementById("inicio").value;
       const fim = document.getElementById("fim").value;
-      const filtroEmail = document.getElementById("email-filtro").value.toLowerCase();
+      const filtroEmail = emailFiltroInput.value.toLowerCase();
 
       const snapshot = await getDocs(q);
       snapshot.forEach(doc => {
@@ -240,9 +319,9 @@
           const dataHora = d.timestamp.toDate();
           const dataStr = dataHora.toLocaleString("pt-BR");
 
-          if (inicio && dataHora < new Date(inicio)) return;
-          if (fim && dataHora > new Date(fim + "T23:59:59")) return;
-          if (filtroEmail && !d.email.toLowerCase().includes(filtroEmail)) return;
+          if (inicio && new Date(dataHora) < new Date(inicio)) return;
+          if (fim && new Date(dataHora) > new Date(fim + "T23:59:59")) return;
+          if (filtroEmail && !d.email.split("@")[0].toLowerCase().includes(filtroEmail)) return;
 
           registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
         }
