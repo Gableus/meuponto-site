@@ -17,35 +17,24 @@
 
     .container {
       display: flex;
-      flex-direction: row;
       justify-content: center;
       align-items: center;
       height: 100vh;
       padding: 20px;
     }
 
-    .texto-esquerda {
-      flex: 1;
-      padding: 20px;
-    }
-
-    .texto-esquerda h1 {
-      color: #1877f2;
-      font-size: 50px;
-      margin-bottom: 10px;
-    }
-
-    .texto-esquerda p {
-      font-size: 20px;
-      color: #1c1e21;
-    }
-
     .login-box {
-      flex: 1;
       background-color: white;
       padding: 30px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
     }
 
     .login-box input {
@@ -70,6 +59,21 @@
 
     .login-box button:hover {
       background-color: #155dbd;
+    }
+
+    .cadastro-btn {
+      margin-top: 10px;
+      background-color: #42b72a;
+    }
+
+    .cadastro-btn:hover {
+      background-color: #36a420;
+    }
+
+    .toggle-senha {
+      background-color: #e4e6eb;
+      color: #050505;
+      margin-top: 10px;
     }
 
     .barra-topo {
@@ -128,31 +132,17 @@
       font-size: 14px;
       color: #333;
     }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-      .texto-esquerda {
-        text-align: center;
-      }
-      .barra-topo {
-        flex-direction: column;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="container" id="login-container">
-    <div class="texto-esquerda">
-      <h1>Meu Ponto</h1>
-      <p>Registre o seu dia com praticidade. O Meu Ponto cuida da organização por você.</p>
-    </div>
     <form class="login-box" id="login-form">
+      <h2>Entrar</h2>
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Senha" id="senha" required />
       <button type="submit">Entrar</button>
-      <button type="button" onclick="toggleSenha()">Mostrar senha</button>
+      <button type="button" class="toggle-senha" onclick="toggleSenha()">Mostrar senha</button>
+      <button type="button" class="cadastro-btn" onclick="cadastrarUsuario()">Cadastrar nova conta</button>
     </form>
   </div>
 
@@ -225,9 +215,20 @@
       try {
         await signInWithEmailAndPassword(auth, email, senha);
       } catch {
-        await createUserWithEmailAndPassword(auth, email, senha);
+        alert("Erro ao entrar. Verifique as credenciais ou use 'Cadastrar nova conta'.");
       }
     });
+
+    window.cadastrarUsuario = async function () {
+      const email = loginForm.email.value;
+      const senha = loginForm.password.value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, senha);
+        alert("Conta cadastrada com sucesso!");
+      } catch (error) {
+        alert("Erro ao cadastrar: " + error.message);
+      }
+    };
 
     sairBtn.addEventListener("click", () => {
       signOut(auth);
