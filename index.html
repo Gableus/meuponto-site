@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Meu Ponto</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
     * {
       box-sizing: border-box;
@@ -72,8 +73,11 @@
     .toggle-password {
       position: absolute;
       right: 10px;
-      top: 12px;
+      top: 50%;
+      transform: translateY(-50%);
       cursor: pointer;
+      color: #888;
+      font-size: 18px;
     }
 
     .login-box button {
@@ -172,7 +176,7 @@
       <input type="email" name="email" placeholder="Email" required />
       <div class="senha-container">
         <input type="password" name="password" id="password" placeholder="Senha" required />
-        <span class="toggle-password">👁️</span>
+        <i class="fa-solid fa-eye toggle-password"></i>
       </div>
       <button type="submit">Entrar</button>
       <button type="button" class="cadastro-btn" id="cadastro-btn">Cadastrar nova conta</button>
@@ -336,7 +340,6 @@
       URL.revokeObjectURL(url);
     });
 
-    // PDF EXPORTAÇÃO
     const exportarPdfBtn = document.createElement("button");
     exportarPdfBtn.textContent = "Exportar para PDF";
     exportarPdfBtn.id = "exportar-pdf-btn";
@@ -382,10 +385,13 @@
       }
     });
 
-    document.querySelector(".toggle-password").addEventListener("click", () => {
+    // Alternar visibilidade da senha com ícone
+    document.querySelector(".toggle-password").addEventListener("click", function () {
       const passwordInput = document.getElementById("password");
-      const type = passwordInput.type === "password" ? "text" : "password";
-      passwordInput.type = type;
+      const isPassword = passwordInput.type === "password";
+      passwordInput.type = isPassword ? "text" : "password";
+      this.classList.toggle("fa-eye");
+      this.classList.toggle("fa-eye-slash");
     });
   </script>
 </body>
