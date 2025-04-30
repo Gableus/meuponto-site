@@ -63,6 +63,21 @@
       font-size: 16px;
     }
 
+    .login-box .senha-container {
+      position: relative;
+    }
+
+    .senha-container input {
+      padding-right: 40px;
+    }
+
+    .senha-container .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 12px;
+      cursor: pointer;
+    }
+
     .login-box button {
       width: 100%;
       padding: 14px;
@@ -78,33 +93,9 @@
       background-color: #155dbd;
     }
 
-    .ver-senha {
-      position: relative;
-    }
-
-    .ver-senha input {
-      padding-right: 40px;
-    }
-
-    .ver-senha span {
-      position: absolute;
-      right: 10px;
-      top: 12px;
-      cursor: pointer;
-      color: #888;
-    }
-
-    .criar-conta {
-      display: block;
-      text-align: center;
+    .login-box .cadastro-btn {
       margin-top: 10px;
-      color: #1877f2;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .criar-conta:hover {
-      text-decoration: underline;
+      background-color: #42b72a;
     }
 
     #content {
@@ -115,6 +106,7 @@
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(0,0,0,0.05);
       margin-top: 20px;
+      position: relative;
     }
 
     #botoes-ponto button,
@@ -130,11 +122,11 @@
     }
 
     #entrada-btn, #saida-btn { background-color: #1976d2; }
-    #sair { background-color: #d32f2f; }
+    #sair { background-color: #d32f2f; position: absolute; top: 20px; right: 20px; }
     #exportar-btn { background-color: #388e3c; }
     #filtro button { background-color: #0288d1; }
 
-    #filtro input, #email-filtro {
+    #filtro input, #filtro select {
       padding: 8px;
       margin-right: 5px;
       border-radius: 4px;
@@ -174,12 +166,12 @@
     </div>
     <form class="login-box" id="login-form">
       <input type="email" name="email" placeholder="Email" required />
-      <div class="ver-senha">
-        <input type="password" name="password" id="senha" placeholder="Senha" required />
-        <span id="toggleSenha">&#128065;</span>
+      <div class="senha-container">
+        <input type="password" name="password" id="password" placeholder="Senha" required />
+        <span class="toggle-password">👁️</span>
       </div>
       <button type="submit">Entrar</button>
-      <span class="criar-conta" id="criarConta">Criar nova conta</span>
+      <button type="button" class="cadastro-btn" id="cadastro-btn">Cadastrar nova conta</button>
     </form>
   </div>
 
@@ -187,16 +179,17 @@
     <div id="botoes-ponto">
       <button id="entrada-btn">Registrar Entrada</button>
       <button id="saida-btn">Registrar Saída</button>
-      <button id="sair">Sair</button>
     </div>
 
     <div id="filtro">
-      <input type="text" id="email-filtro" placeholder="Filtrar por nome do email" />
       <input type="date" id="inicio" />
       <input type="date" id="fim" />
+      <input type="text" id="emailFiltro" placeholder="Filtrar por e-mail" />
       <button id="filtrar-btn">Filtrar</button>
       <button id="exportar-btn">Exportar para Excel</button>
     </div>
+
+    <button id="sair">Sair</button>
 
     <div id="registros"></div>
   </div>
@@ -238,29 +231,22 @@
     const admEmail = "meuponto.net.br@gmail.com";
 
     const loginForm = document.getElementById("login-form");
+    const cadastroBtn = document.getElementById("cadastro-btn");
     const loginContainer = document.getElementById("login-container");
     const content = document.getElementById("content");
-    const botoesPonto = document.getElementById("botoes-ponto");
     const registrosDiv = document.getElementById("registros");
-    const sairBtn = document.getElementById("sair");
     const entradaBtn = document.getElementById("entrada-btn");
     const saidaBtn = document.getElementById("saida-btn");
+    const sairBtn = document.getElementById("sair");
     const filtrarBtn = document.getElementById("filtrar-btn");
     const exportarBtn = document.getElementById("exportar-btn");
-    const emailFiltroInput = document.getElementById("email-filtro");
-    const senhaInput = document.getElementById("senha");
-    const toggleSenha = document.getElementById("toggleSenha");
-    const criarConta = document.getElementById("criarConta");
+    const emailFiltro = document.getElementById("emailFiltro");
 
-    toggleSenha.addEventListener("click", () => {
-      senhaInput.type = senhaInput.type === "password" ? "text" : "password";
-    });
+    let modoCadastro = false;
 
-    let criandoConta = false;
-
-    criarConta.addEventListener("click", () => {
-      criandoConta = true;
-      alert("Digite um email e senha e clique novamente em Entrar para criar a conta.");
+    cadastroBtn.addEventListener("click", () => {
+      modoCadastro = true;
+      loginForm.requestSubmit();
     });
 
     loginForm.addEventListener("submit", async (e) => {
@@ -268,14 +254,15 @@
       const email = loginForm.email.value;
       const senha = loginForm.password.value;
       try {
-        if (criandoConta) {
+        if (modoCadastro) {
           await createUserWithEmailAndPassword(auth, email, senha);
         } else {
           await signInWithEmailAndPassword(auth, email, senha);
         }
       } catch (error) {
-        alert("Erro no login/cadastro: " + error.message);
+        alert("Erro: " + error.message);
       }
+      modoCadastro = false;
     });
 
     sairBtn.addEventListener("click", () => {
@@ -310,7 +297,7 @@
 
       const inicio = document.getElementById("inicio").value;
       const fim = document.getElementById("fim").value;
-      const filtroEmail = emailFiltroInput.value.toLowerCase();
+      const emailFiltroValor = emailFiltro.value.trim().toLowerCase();
 
       const snapshot = await getDocs(q);
       snapshot.forEach(doc => {
@@ -321,7 +308,7 @@
 
           if (inicio && new Date(dataHora) < new Date(inicio)) return;
           if (fim && new Date(dataHora) > new Date(fim + "T23:59:59")) return;
-          if (filtroEmail && !d.email.split("@")[0].toLowerCase().includes(filtroEmail)) return;
+          if (emailFiltroValor && !d.email.toLowerCase().startsWith(emailFiltroValor)) return;
 
           registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
         }
@@ -348,14 +335,19 @@
       if (user) {
         loginContainer.style.display = "none";
         content.style.display = "block";
-        botoesPonto.style.display = "flex";
         mostrarRegistros();
       } else {
         loginContainer.style.display = "flex";
         content.style.display = "none";
-        botoesPonto.style.display = "none";
         registrosDiv.innerHTML = "";
       }
+    });
+
+    // Mostrar senha
+    document.querySelector(".toggle-password").addEventListener("click", () => {
+      const passwordInput = document.getElementById("password");
+      const type = passwordInput.type === "password" ? "text" : "password";
+      passwordInput.type = type;
     });
   </script>
 </body>
