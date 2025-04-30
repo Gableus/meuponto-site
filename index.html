@@ -7,9 +7,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -45,7 +43,7 @@
       color: #1c1e21;
     }
 
-    .login-box {
+    .form-box {
       flex: 1;
       background-color: white;
       padding: 30px;
@@ -53,7 +51,7 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    .login-box input {
+    .form-box input {
       width: 100%;
       padding: 14px;
       margin-bottom: 12px;
@@ -72,7 +70,7 @@
 
     .toggle-password {
       position: absolute;
-      right: 12px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
@@ -80,7 +78,7 @@
       font-size: 18px;
     }
 
-    .login-box button {
+    .form-box button {
       width: 100%;
       padding: 14px;
       background-color: #1877f2;
@@ -91,13 +89,18 @@
       cursor: pointer;
     }
 
-    .login-box button:hover {
+    .form-box button:hover {
       background-color: #155dbd;
     }
 
-    .login-box .cadastro-btn {
-      margin-top: 10px;
+    .form-box .cadastro-btn {
       background-color: #42b72a;
+      margin-top: 10px;
+    }
+
+    .form-box .voltar-btn {
+      background-color: #888;
+      margin-top: 10px;
     }
 
     #content {
@@ -172,7 +175,8 @@
       <h1>Meu Ponto</h1>
       <p>Registre o seu dia com praticidade. O Meu Ponto cuida da organização por você.</p>
     </div>
-    <form class="login-box" id="login-form">
+
+    <form class="form-box" id="login-form">
       <input type="email" name="email" placeholder="Email" required />
       <div class="senha-container">
         <input type="password" name="password" id="password" placeholder="Senha" required />
@@ -182,7 +186,17 @@
       <p style="text-align: center; margin: 10px 0;">
         <a href="#" id="esqueci-senha" style="color: #1877f2; text-decoration: none;">Esqueceu a senha?</a>
       </p>
-      <button type="button" class="cadastro-btn" id="cadastro-btn">Cadastrar nova conta</button>
+      <button type="button" class="cadastro-btn" id="mostrar-cadastro">Cadastrar nova conta</button>
+    </form>
+
+    <form class="form-box" id="cadastro-form" style="display: none;">
+      <input type="email" id="cadastro-email" placeholder="Email" required />
+      <div class="senha-container">
+        <input type="password" id="cadastro-senha" placeholder="Senha" required />
+        <i class="fa-solid fa-eye toggle-password"></i>
+      </div>
+      <button type="submit">Cadastrar</button>
+      <button type="button" class="voltar-btn" id="voltar-login">Já tenho uma conta</button>
     </form>
   </div>
 
@@ -240,14 +254,16 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
     const admEmail = "meuponto.net.br@gmail.com";
 
     const loginForm = document.getElementById("login-form");
-    const cadastroBtn = document.getElementById("cadastro-btn");
+    const cadastroForm = document.getElementById("cadastro-form");
+    const mostrarCadastro = document.getElementById("mostrar-cadastro");
+    const voltarLogin = document.getElementById("voltar-login");
     const loginContainer = document.getElementById("login-container");
     const content = document.getElementById("content");
     const registrosDiv = document.getElementById("registros");
+
     const entradaBtn = document.getElementById("entrada-btn");
     const saidaBtn = document.getElementById("saida-btn");
     const sairBtn = document.getElementById("sair");
@@ -255,33 +271,39 @@
     const exportarBtn = document.getElementById("exportar-btn");
     const emailFiltro = document.getElementById("emailFiltro");
 
-    let modoCadastro = false;
-
-    cadastroBtn.addEventListener("click", () => {
-      modoCadastro = true;
-      loginForm.requestSubmit();
-    });
-
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = loginForm.email.value;
       const senha = loginForm.password.value;
       try {
-        if (modoCadastro) {
-          await createUserWithEmailAndPassword(auth, email, senha);
-        } else {
-          await signInWithEmailAndPassword(auth, email, senha);
-        }
+        await signInWithEmailAndPassword(auth, email, senha);
       } catch (error) {
         alert("Erro: " + error.message);
       }
-      modoCadastro = false;
     });
 
-    sairBtn.addEventListener("click", () => {
-      signOut(auth);
+    cadastroForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("cadastro-email").value;
+      const senha = document.getElementById("cadastro-senha").value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, senha);
+      } catch (error) {
+        alert("Erro: " + error.message);
+      }
     });
 
+    mostrarCadastro.onclick = () => {
+      loginForm.style.display = "none";
+      cadastroForm.style.display = "block";
+    };
+
+    voltarLogin.onclick = () => {
+      cadastroForm.style.display = "none";
+      loginForm.style.display = "block";
+    };
+
+    sairBtn.addEventListener("click", () => signOut(auth));
     entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
     saidaBtn.addEventListener("click", () => registrarPonto("saida"));
 
@@ -291,7 +313,7 @@
       await addDoc(collection(db, "pontos"), {
         userId: user.uid,
         email: user.email,
-        tipo: tipo,
+        tipo,
         timestamp: serverTimestamp()
       });
       alert(`Ponto de ${tipo} registrado com sucesso!`);
@@ -319,8 +341,8 @@
           const dataHora = d.timestamp.toDate();
           const dataStr = dataHora.toLocaleString("pt-BR");
 
-          if (inicio && new Date(dataHora) < new Date(inicio)) return;
-          if (fim && new Date(dataHora) > new Date(fim + "T23:59:59")) return;
+          if (inicio && dataHora < new Date(inicio)) return;
+          if (fim && dataHora > new Date(fim + "T23:59:59")) return;
           if (emailFiltroValor && !d.email.toLowerCase().startsWith(emailFiltroValor)) return;
 
           registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
@@ -328,70 +350,52 @@
       });
     }
 
-    filtrarBtn.onclick = () => mostrarRegistros();
+    filtrarBtn.onclick = mostrarRegistros;
 
-    exportarBtn.addEventListener("click", () => {
-      const registros = document.getElementById("registros").innerHTML;
-      const blob = new Blob(
-        [`<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>`],
-        { type: "application/vnd.ms-excel" }
-      );
+    exportarBtn.onclick = () => {
+      const registros = registrosDiv.innerHTML;
+      const blob = new Blob([`<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>`], { type: "application/vnd.ms-excel" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = "registros.xls";
       a.click();
       URL.revokeObjectURL(url);
-    });
+    };
 
     const exportarPdfBtn = document.createElement("button");
     exportarPdfBtn.textContent = "Exportar para PDF";
     exportarPdfBtn.id = "exportar-pdf-btn";
-    document.getElementById("exportar-btn").insertAdjacentElement("afterend", exportarPdfBtn);
+    document.getElementById("filtro").insertBefore(exportarPdfBtn, sairBtn);
 
-    exportarPdfBtn.addEventListener("click", () => {
+    exportarPdfBtn.onclick = () => {
       const registros = document.querySelectorAll("#registros p");
-      if (registros.length === 0) {
-        alert("Nenhum registro para exportar.");
-        return;
-      }
-
+      if (registros.length === 0) return alert("Nenhum registro para exportar.");
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-
       let y = 10;
       doc.setFontSize(12);
       doc.text("Registros de Ponto", 10, y);
       y += 10;
-
       registros.forEach((p) => {
-        const texto = p.textContent || "";
-        if (y > 280) {
-          doc.addPage();
-          y = 10;
-        }
-        doc.text(texto, 10, y);
+        if (y > 280) { doc.addPage(); y = 10; }
+        doc.text(p.textContent || "", 10, y);
         y += 8;
       });
-
       doc.save("registros.pdf");
-    });
+    };
 
-    document.getElementById("esqueci-senha").addEventListener("click", async (e) => {
+    document.getElementById("esqueci-senha").onclick = async (e) => {
       e.preventDefault();
       const email = loginForm.email.value;
-      if (!email) {
-        alert("Por favor, preencha seu email para redefinir a senha.");
-        return;
-      }
-
+      if (!email) return alert("Preencha seu email para redefinir a senha.");
       try {
         await sendPasswordResetEmail(auth, email);
         alert("Um link para redefinição de senha foi enviado para o seu email.");
       } catch (error) {
-        alert("Erro ao enviar email de redefinição: " + error.message);
+        alert("Erro ao enviar email: " + error.message);
       }
-    });
+    };
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -405,12 +409,14 @@
       }
     });
 
-    document.querySelector(".toggle-password").addEventListener("click", function () {
-      const passwordInput = document.getElementById("password");
-      const isPassword = passwordInput.type === "password";
-      passwordInput.type = isPassword ? "text" : "password";
-      this.classList.toggle("fa-eye");
-      this.classList.toggle("fa-eye-slash");
+    document.querySelectorAll(".toggle-password").forEach(icon => {
+      icon.addEventListener("click", function () {
+        const input = this.previousElementSibling;
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        this.classList.toggle("fa-eye");
+        this.classList.toggle("fa-eye-slash");
+      });
     });
   </script>
 </body>
