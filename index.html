@@ -11,30 +11,47 @@
 
     body {
       margin: 0;
+      padding: 0;
       font-family: Arial, sans-serif;
       background-color: #f0f2f5;
-    }
-
-    .container {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      max-width: 1000px;
+      width: 100%;
       padding: 20px;
     }
 
+    .texto-esquerda {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .texto-esquerda h1 {
+      color: #1877f2;
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    .texto-esquerda p {
+      font-size: 20px;
+      color: #1c1e21;
+    }
+
     .login-box {
+      flex: 1;
       background-color: white;
       padding: 30px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 400px;
-      width: 100%;
-    }
-
-    .login-box h2 {
-      text-align: center;
-      margin-bottom: 20px;
     }
 
     .login-box input {
@@ -44,6 +61,21 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 16px;
+    }
+
+    .login-box .senha-container {
+      position: relative;
+    }
+
+    .senha-container input {
+      padding-right: 40px;
+    }
+
+    .senha-container .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 12px;
+      cursor: pointer;
     }
 
     .login-box button {
@@ -61,68 +93,50 @@
       background-color: #155dbd;
     }
 
-    .cadastro-btn {
+    .login-box .cadastro-btn {
       margin-top: 10px;
       background-color: #42b72a;
     }
 
-    .cadastro-btn:hover {
-      background-color: #36a420;
-    }
-
-    .toggle-senha {
-      background-color: #e4e6eb;
-      color: #050505;
-      margin-top: 10px;
-    }
-
-    .barra-topo {
-      position: fixed;
-      top: 0;
-      width: 100%;
+    #content {
+      display: none;
+      padding: 30px;
+      max-width: 800px;
       background: white;
-      padding: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      z-index: 999;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+      margin-top: 20px;
+      position: relative;
     }
 
-    .barra-topo button,
-    .barra-topo input {
+    #botoes-ponto button,
+    #filtro button,
+    #exportar-btn {
+      margin: 5px 5px 10px 0;
       padding: 10px 14px;
       border: none;
+      color: white;
+      cursor: pointer;
       border-radius: 6px;
       font-size: 14px;
     }
 
-    .barra-topo button { color: white; cursor: pointer; }
-    #entrada-btn { background-color: #1976d2; }
-    #saida-btn { background-color: #1976d2; }
-    #filtrar-btn { background-color: #0288d1; }
+    #entrada-btn, #saida-btn { background-color: #1976d2; }
+    #sair { background-color: #d32f2f; position: absolute; top: 20px; right: 20px; }
     #exportar-btn { background-color: #388e3c; }
-    #sair { background-color: #d32f2f; }
+    #filtro button { background-color: #0288d1; }
 
-    .barra-topo input {
+    #filtro input, #filtro select {
+      padding: 8px;
+      margin-right: 5px;
+      border-radius: 4px;
       border: 1px solid #ccc;
-      color: #333;
-    }
-
-    #content {
-      padding-top: 90px;
-      max-width: 900px;
-      margin: 0 auto;
     }
 
     #registros {
-      max-height: 70vh;
-      overflow-y: auto;
+      margin-top: 20px;
       background: #f8f9fa;
       padding: 15px;
-      margin: 20px;
       border-radius: 8px;
       box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
     }
@@ -132,32 +146,51 @@
       font-size: 14px;
       color: #333;
     }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .texto-esquerda {
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container" id="login-container">
+    <div class="texto-esquerda">
+      <h1>Meu Ponto</h1>
+      <p>Registre o seu dia com praticidade. O Meu Ponto cuida da organização por você.</p>
+    </div>
     <form class="login-box" id="login-form">
-      <h2>Entrar</h2>
       <input type="email" name="email" placeholder="Email" required />
-      <input type="password" name="password" placeholder="Senha" id="senha" required />
+      <div class="senha-container">
+        <input type="password" name="password" id="password" placeholder="Senha" required />
+        <span class="toggle-password">👁️</span>
+      </div>
       <button type="submit">Entrar</button>
-      <button type="button" class="toggle-senha" onclick="toggleSenha()">Mostrar senha</button>
-      <button type="button" class="cadastro-btn" onclick="cadastrarUsuario()">Cadastrar nova conta</button>
+      <button type="button" class="cadastro-btn" id="cadastro-btn">Cadastrar nova conta</button>
     </form>
   </div>
 
-  <div class="barra-topo" id="barra-botoes" style="display:none;">
-    <button id="entrada-btn">Registrar Entrada</button>
-    <button id="saida-btn">Registrar Saída</button>
-    <input type="date" id="inicio" />
-    <input type="date" id="fim" />
-    <input type="text" id="emailFiltro" placeholder="Filtrar por email" />
-    <button id="filtrar-btn">Filtrar</button>
-    <button id="exportar-btn">Exportar para Excel</button>
-    <button id="sair">Sair</button>
-  </div>
-
   <div id="content">
+    <div id="botoes-ponto">
+      <button id="entrada-btn">Registrar Entrada</button>
+      <button id="saida-btn">Registrar Saída</button>
+    </div>
+
+    <div id="filtro">
+      <input type="date" id="inicio" />
+      <input type="date" id="fim" />
+      <input type="text" id="emailFiltro" placeholder="Filtrar por e-mail" />
+      <button id="filtrar-btn">Filtrar</button>
+      <button id="exportar-btn">Exportar para Excel</button>
+    </div>
+
+    <button id="sair">Sair</button>
+
     <div id="registros"></div>
   </div>
 
@@ -198,6 +231,7 @@
     const admEmail = "meuponto.net.br@gmail.com";
 
     const loginForm = document.getElementById("login-form");
+    const cadastroBtn = document.getElementById("cadastro-btn");
     const loginContainer = document.getElementById("login-container");
     const content = document.getElementById("content");
     const registrosDiv = document.getElementById("registros");
@@ -206,29 +240,30 @@
     const sairBtn = document.getElementById("sair");
     const filtrarBtn = document.getElementById("filtrar-btn");
     const exportarBtn = document.getElementById("exportar-btn");
-    const barraBotoes = document.getElementById("barra-botoes");
+    const emailFiltro = document.getElementById("emailFiltro");
+
+    let modoCadastro = false;
+
+    cadastroBtn.addEventListener("click", () => {
+      modoCadastro = true;
+      loginForm.requestSubmit();
+    });
 
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = loginForm.email.value;
       const senha = loginForm.password.value;
       try {
-        await signInWithEmailAndPassword(auth, email, senha);
-      } catch {
-        alert("Erro ao entrar. Verifique as credenciais ou use 'Cadastrar nova conta'.");
-      }
-    });
-
-    window.cadastrarUsuario = async function () {
-      const email = loginForm.email.value;
-      const senha = loginForm.password.value;
-      try {
-        await createUserWithEmailAndPassword(auth, email, senha);
-        alert("Conta cadastrada com sucesso!");
+        if (modoCadastro) {
+          await createUserWithEmailAndPassword(auth, email, senha);
+        } else {
+          await signInWithEmailAndPassword(auth, email, senha);
+        }
       } catch (error) {
-        alert("Erro ao cadastrar: " + error.message);
+        alert("Erro: " + error.message);
       }
-    };
+      modoCadastro = false;
+    });
 
     sairBtn.addEventListener("click", () => {
       signOut(auth);
@@ -262,7 +297,7 @@
 
       const inicio = document.getElementById("inicio").value;
       const fim = document.getElementById("fim").value;
-      const emailFiltro = document.getElementById("emailFiltro").value.toLowerCase();
+      const emailFiltroValor = emailFiltro.value.trim().toLowerCase();
 
       const snapshot = await getDocs(q);
       snapshot.forEach(doc => {
@@ -273,7 +308,7 @@
 
           if (inicio && new Date(dataHora) < new Date(inicio)) return;
           if (fim && new Date(dataHora) > new Date(fim + "T23:59:59")) return;
-          if (emailFiltro && !d.email.toLowerCase().includes(emailFiltro)) return;
+          if (emailFiltroValor && !d.email.toLowerCase().startsWith(emailFiltroValor)) return;
 
           registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
         }
@@ -283,7 +318,7 @@
     filtrarBtn.onclick = () => mostrarRegistros();
 
     exportarBtn.addEventListener("click", () => {
-      const registros = registrosDiv.innerHTML;
+      const registros = document.getElementById("registros").innerHTML;
       const blob = new Blob(
         [`<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>`],
         { type: "application/vnd.ms-excel" }
@@ -300,20 +335,20 @@
       if (user) {
         loginContainer.style.display = "none";
         content.style.display = "block";
-        barraBotoes.style.display = "flex";
         mostrarRegistros();
       } else {
         loginContainer.style.display = "flex";
         content.style.display = "none";
-        barraBotoes.style.display = "none";
         registrosDiv.innerHTML = "";
       }
     });
 
-    window.toggleSenha = function () {
-      const senhaInput = document.getElementById("senha");
-      senhaInput.type = senhaInput.type === "password" ? "text" : "password";
-    };
+    // Mostrar senha
+    document.querySelector(".toggle-password").addEventListener("click", () => {
+      const passwordInput = document.getElementById("password");
+      const type = passwordInput.type === "password" ? "text" : "password";
+      passwordInput.type = type;
+    });
   </script>
 </body>
 </html>
