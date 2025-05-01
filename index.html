@@ -316,7 +316,7 @@
         tipo,
         timestamp: serverTimestamp()
       });
-      alert(Ponto de ${tipo} registrado com sucesso!);
+      alert(`Ponto de ${tipo} registrado com sucesso!`);
       mostrarRegistros();
     }
 
@@ -345,7 +345,7 @@
           if (fim && dataHora > new Date(fim + "T23:59:59")) return;
           if (emailFiltroValor && !d.email.toLowerCase().startsWith(emailFiltroValor)) return;
 
-          registrosDiv.innerHTML += <p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>;
+          registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
         }
       });
     }
@@ -354,7 +354,7 @@
 
     exportarBtn.onclick = () => {
       const registros = registrosDiv.innerHTML;
-      const blob = new Blob([<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>], { type: "application/vnd.ms-excel" });
+      const blob = new Blob([`<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>`], { type: "application/vnd.ms-excel" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
