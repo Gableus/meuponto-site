@@ -282,7 +282,429 @@
       }
     });
 
-    // Resto do seu código original aqui...
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meu Ponto</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .texto-esquerda {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .texto-esquerda h1 {
+      color: #1877f2;
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    .texto-esquerda p {
+      font-size: 20px;
+      color: #1c1e21;
+    }
+
+    .form-box {
+      flex: 1;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .form-box input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .senha-container {
+      position: relative;
+    }
+
+    .senha-container input {
+      padding-right: 40px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #888;
+      font-size: 18px;
+    }
+
+    .form-box button {
+      width: 100%;
+      padding: 14px;
+      background-color: #1877f2;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .form-box button:hover {
+      background-color: #155dbd;
+    }
+
+    .form-box .cadastro-btn {
+      background-color: #42b72a;
+      margin-top: 10px;
+    }
+
+    .form-box .voltar-btn {
+      background-color: #888;
+      margin-top: 10px;
+    }
+
+    #content {
+      display: none;
+      padding: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .top-buttons {
+      position: sticky;
+      top: 0;
+      background-color: white;
+      padding-bottom: 10px;
+      z-index: 999;
+    }
+
+    #botoes-ponto button,
+    #filtro button,
+    #exportar-btn,
+    #sair {
+      margin: 5px 5px 10px 0;
+      padding: 10px 14px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    #entrada-btn, #saida-btn { background-color: #1976d2; }
+    #sair { background-color: #d32f2f; float: right; }
+    #exportar-btn { background-color: #388e3c; }
+    #exportar-pdf-btn { background-color: #6a1b9a; }
+    #filtro button { background-color: #0288d1; }
+
+    #filtro input {
+      padding: 8px;
+      margin-right: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    #registros {
+      margin-top: 20px;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+    }
+
+    #registros p {
+      margin: 6px 0;
+      font-size: 14px;
+      color: #333;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .texto-esquerda {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="login-container">
+    <div class="texto-esquerda">
+      <h1>Meu Ponto</h1>
+      <p>Registre o seu dia com praticidade. O Meu Ponto cuida da organização por você.</p>
+    </div>
+
+    <form class="form-box" id="login-form">
+      <input type="email" name="email" placeholder="Email" required />
+      <div class="senha-container">
+        <input type="password" name="password" id="password" placeholder="Senha" required />
+        <i class="fa-solid fa-eye toggle-password"></i>
+      </div>
+      <button type="submit">Entrar</button>
+      <p style="text-align: center; margin: 10px 0;">
+        <a href="#" id="esqueci-senha" style="color: #1877f2; text-decoration: none;">Esqueceu a senha?</a>
+      </p>
+      <button type="button" class="cadastro-btn" id="mostrar-cadastro">Cadastrar nova conta</button>
+    </form>
+
+    <form class="form-box" id="cadastro-form" style="display: none;">
+      <input type="email" id="cadastro-email" placeholder="Email" required />
+      <div class="senha-container">
+        <input type="password" id="cadastro-senha" placeholder="Senha" required />
+        <i class="fa-solid fa-eye toggle-password"></i>
+      </div>
+      <button type="submit">Cadastrar</button>
+      <button type="button" class="voltar-btn" id="voltar-login">Já tenho uma conta</button>
+    </form>
+  </div>
+
+  <div id="content">
+    <div class="top-buttons">
+      <div id="botoes-ponto">
+        <button id="entrada-btn">Registrar Entrada</button>
+        <button id="saida-btn">Registrar Saída</button>
+      </div>
+
+      <div id="filtro">
+        <input type="date" id="inicio" />
+        <input type="date" id="fim" />
+        <input type="text" id="emailFiltro" placeholder="Filtrar por e-mail" />
+        <button id="filtrar-btn">Filtrar</button>
+        <button id="exportar-btn">Exportar para Excel</button>
+        <button id="sair">Sair</button>
+      </div>
+    </div>
+
+    <div id="registros"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      query,
+      where,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpiNXMk9fNcr5yP4a4J1ysKx7cfublWns",
+      authDomain: "meuponto-9cdc2.firebaseapp.com",
+      projectId: "meuponto-9cdc2",
+      storageBucket: "meuponto-9cdc2.appspot.com",
+      messagingSenderId: "263074488820",
+      appId: "1:263074488820:web:54a7daedd1c5a8f8ef19a1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const admEmail = "meuponto.net.br@gmail.com";
+
+    const loginForm = document.getElementById("login-form");
+    const cadastroForm = document.getElementById("cadastro-form");
+    const mostrarCadastro = document.getElementById("mostrar-cadastro");
+    const voltarLogin = document.getElementById("voltar-login");
+    const loginContainer = document.getElementById("login-container");
+    const content = document.getElementById("content");
+    const registrosDiv = document.getElementById("registros");
+
+    const entradaBtn = document.getElementById("entrada-btn");
+    const saidaBtn = document.getElementById("saida-btn");
+    const sairBtn = document.getElementById("sair");
+    const filtrarBtn = document.getElementById("filtrar-btn");
+    const exportarBtn = document.getElementById("exportar-btn");
+    const emailFiltro = document.getElementById("emailFiltro");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = loginForm.email.value;
+      const senha = loginForm.password.value;
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+      } catch (error) {
+        alert("Erro: " + error.message);
+      }
+    });
+
+    cadastroForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("cadastro-email").value;
+      const senha = document.getElementById("cadastro-senha").value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, senha);
+      } catch (error) {
+        alert("Erro: " + error.message);
+      }
+    });
+
+    mostrarCadastro.onclick = () => {
+      loginForm.style.display = "none";
+      cadastroForm.style.display = "block";
+    };
+
+    voltarLogin.onclick = () => {
+      cadastroForm.style.display = "none";
+      loginForm.style.display = "block";
+    };
+
+    sairBtn.addEventListener("click", () => signOut(auth));
+    entradaBtn.addEventListener("click", () => registrarPonto("entrada"));
+    saidaBtn.addEventListener("click", () => registrarPonto("saida"));
+
+    async function registrarPonto(tipo) {
+      const user = auth.currentUser;
+      if (!user) return;
+      await addDoc(collection(db, "pontos"), {
+        userId: user.uid,
+        email: user.email,
+        tipo,
+        timestamp: serverTimestamp()
+      });
+      alert(`Ponto de ${tipo} registrado com sucesso!`);
+      mostrarRegistros();
+    }
+
+    async function mostrarRegistros() {
+      registrosDiv.innerHTML = "<h3>Registros</h3>";
+      const user = auth.currentUser;
+      if (!user) return;
+
+      let q = query(collection(db, "pontos"), orderBy("timestamp", "desc"));
+      if (user.email !== admEmail) {
+        q = query(collection(db, "pontos"), where("userId", "==", user.uid), orderBy("timestamp", "desc"));
+      }
+
+      const inicio = document.getElementById("inicio").value;
+      const fim = document.getElementById("fim").value;
+      const emailFiltroValor = emailFiltro.value.trim().toLowerCase();
+
+      const snapshot = await getDocs(q);
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        if (d.timestamp?.toDate) {
+          const dataHora = d.timestamp.toDate();
+          const dataStr = dataHora.toLocaleString("pt-BR");
+
+          if (inicio && dataHora < new Date(inicio)) return;
+          if (fim && dataHora > new Date(fim + "T23:59:59")) return;
+          if (emailFiltroValor && !d.email.toLowerCase().startsWith(emailFiltroValor)) return;
+
+          registrosDiv.innerHTML += `<p><strong>${d.email}</strong> - ${d.tipo} às ${dataStr}</p>`;
+        }
+      });
+    }
+
+    filtrarBtn.onclick = mostrarRegistros;
+
+    exportarBtn.onclick = () => {
+      const registros = registrosDiv.innerHTML;
+      const blob = new Blob([`<html><head><meta charset="UTF-8"></head><body>${registros}</body></html>`], { type: "application/vnd.ms-excel" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "registros.xls";
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    const exportarPdfBtn = document.createElement("button");
+    exportarPdfBtn.textContent = "Exportar para PDF";
+    exportarPdfBtn.id = "exportar-pdf-btn";
+    document.getElementById("filtro").insertBefore(exportarPdfBtn, sairBtn);
+
+    exportarPdfBtn.onclick = () => {
+      const registros = document.querySelectorAll("#registros p");
+      if (registros.length === 0) return alert("Nenhum registro para exportar.");
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+      doc.setFontSize(12);
+      doc.text("Registros de Ponto", 10, y);
+      y += 10;
+      registros.forEach((p) => {
+        if (y > 280) { doc.addPage(); y = 10; }
+        doc.text(p.textContent || "", 10, y);
+        y += 8;
+      });
+      doc.save("registros.pdf");
+    };
+
+    document.getElementById("esqueci-senha").onclick = async (e) => {
+      e.preventDefault();
+      const email = loginForm.email.value;
+      if (!email) return alert("Preencha seu email para redefinir a senha.");
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Um link para redefinição de senha foi enviado para o seu email.");
+      } catch (error) {
+        alert("Erro ao enviar email: " + error.message);
+      }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginContainer.style.display = "none";
+        content.style.display = "block";
+        mostrarRegistros();
+      } else {
+        loginContainer.style.display = "flex";
+        content.style.display = "none";
+        registrosDiv.innerHTML = "";
+      }
+    });
+
+    document.querySelectorAll(".toggle-password").forEach(icon => {
+      icon.addEventListener("click", function () {
+        const input = this.previousElementSibling;
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        this.classList.toggle("fa-eye");
+        this.classList.toggle("fa-eye-slash");
+      });
+    });
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
